@@ -1,36 +1,35 @@
 section .data
-    prompt1 db "Enter the first string (3 characters): ", 0
+    prompt1 db "Enter the first string: ", 0
     prompt1_len equ $ - prompt1
 
-    prompt2 db "Enter the second string (3 characters): ", 0
+    prompt2 db "Enter the second string: ", 0
     prompt2_len equ $ - prompt2
 
     newline db 10
 
 section .bss
-    str1 resb 4   ; Buffer for the first string (3 chars + null terminator)
-    str2 resb 4   ; Buffer for the second string (3 chars + null terminator)
-    output resb 2 ; Buffer for ASCII output (1 digit + newline)
+    str1 resb 4   ; For first string 
+    str2 resb 4   ; For the second string 
+    output resb 2 ; For ASCII output 
 
 section .text
     global _start
 
 _start:
-    ; Prompt for the first string
-    mov eax, 4         ; sys_write
+    mov eax, 4         
     mov ebx, 1         ; stdout
-    mov ecx, prompt1   ; Message to print
+    mov ecx, prompt1   ; print
     mov edx, prompt1_len
-    int 0x80           ; Call kernel
+    int 0x80           
 
     ; Read the first string
-    mov eax, 3         ; sys_read
-    mov ebx, 0         ; stdin
-    mov ecx, str1      ; Buffer to store the string
-    mov edx, 4         ; Max bytes to read (3 chars + newline)
-    int 0x80           ; Call kernel
+    mov eax, 3         
+    mov ebx, 0         
+    mov ecx, str1      ; Stores the string
+    mov edx, 4         ; Max bytes to read
+    int 0x80           
 
-    ; Prompt for the second string
+    ; Read the second string
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt2
@@ -48,7 +47,7 @@ _start:
     xor ebx, ebx       ; Bit difference count = 0
     mov esi, str1      ; Address of str1
     mov edi, str2      ; Address of str2
-    mov ecx, 3         ; Length of the strings (3 chars)
+    mov ecx, 3         ; Length of the strings
 
 compare_loop:
     mov al, [esi]      ; Load byte from str1
@@ -64,26 +63,26 @@ compare_loop:
     mov [output+1], byte 10 ; Add newline
 
     ; Print result
-    mov eax, 4         ; sys_write
+    mov eax, 4         
     mov ebx, 1         ; stdout
     mov ecx, output    ; Buffer to print
-    mov edx, 2         ; Length (1 digit + newline)
-    int 0x80           ; Call kernel
+    mov edx, 2         ; Length 
+    int 0x80           
 
     ; Exit
-    mov eax, 1         ; sys_exit
-    xor ebx, ebx       ; Exit code 0
-    int 0x80           ; Call kernel
+    mov eax, 1         
+    xor ebx, ebx       
+    int 0x80           
 
-; Count 1s in AL (Hamming weight)
+; Count 1s in AL
 count_bits:
-    xor edx, edx       ; Clear counter
+    xor edx, edx       ; Clear 
 bit_count_loop:
-    test al, 1         ; Check LSB
+    test al, 1         
     jz skip_inc
     inc edx            ; Increment count if bit is 1
 skip_inc:
-    shr al, 1          ; Shift right
+    shr al, 1          
     jnz bit_count_loop ; Repeat if AL is not zero
     add ebx, edx       ; Add count to total
     ret
