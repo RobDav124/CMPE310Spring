@@ -1,0 +1,118 @@
+section .data
+    prompt1 db "Enter first string: ", 0
+    prompt1_len equ $ - prompt1
+
+    prompt2 db "Enter second string: ", 0
+    prompt2_len equ $ - prompt2
+
+    newline db 10
+
+section .bss
+    str1 resb 100
+    str2 resb 100
+    output resb 20
+
+section .text
+    global _start
+
+_start:
+    ; Prompt first string
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, prompt1
+    mov rdx, prompt1_len
+    syscall
+
+    ; Read first string
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, str1
+    mov rdx, 100
+    syscall
+    mov r8, rax
+    dec r8
+    mov byte [str1 + r8], 0
+
+    ; Prompt second string
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, prompt2
+    mov rdx, prompt2_len
+    syscall
+
+    ; Read second string
+    mov rax, 0
+    mov rdi, 0
+    mov rsi, str2
+    mov rdx, 100
+    syscall
+    mov r9, rax
+    dec r9
+    mov byte [str2 + r9], 0
+
+    ; Compare up to the shortest string length
+    mov rcx, r8
+    cmp r9, rcx
+    jl .set_len
+    mov rcx, r9
+.set_len:
+
+    xor rbx, rbx
+    mov rsi, str1
+    mov rdi, str2
+
+.compare_loop:
+    mov al, [rsi]
+    mov dl, [rdi]
+    xor al, dl
+    call count_bits
+    inc rsi
+    inc rdi
+    loop .compare_loop
+
+    ; Convert result to ASCII
+    mov rax, rbx
+    mov rdi, output + 19
+    mov byte [rdi], 10
+    dec rdi
+    cmp rax, 0
+    jne .convert
+    mov byte [rdi], '0'
+    dec rdi
+    jmp .done
+
+.convert:
+    mov r10, 10
+.convert_loop:
+    xor rdx, rdx
+    div r10
+    add dl, '0'
+    mov [rdi], dl
+    dec rdi
+    cmp rax, 0
+    jne .convert_loop
+
+.done:
+    inc rdi
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, 
+    mov	rdx, 
+    syscall
+
+    ; Exit
+    mov rax, 60
+    xor rdi, rdi
+    syscall
+
+count_bits:
+    xor rsi, rsi
+.count_loop:
+    test al, 1
+    jz .no_inc
+    inc rsi
+.no_inc:
+    shr al, 1
+    jnz .count_loop
+    add rbx, rsi
+    ret
